@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+from io import StringIO
 from pathlib import Path
 
 from hubspot_dedupe.models import CompanyRecord, ContactRecord, ObjectType, Record
@@ -46,8 +47,31 @@ def _read_rows(path: Path) -> list[dict[str, str]]:
         return [dict(row) for row in reader]
 
 
+def _read_rows_from_text(csv_text: str) -> list[dict[str, str]]:
+    reader = csv.DictReader(StringIO(csv_text))
+    return [dict(row) for row in reader]
+
+
 def load_records(path: str, object_type: ObjectType) -> list[Record]:
     rows = _read_rows(Path(path))
+    return _load_records_from_rows(rows, object_type)
+
+
+def load_records_from_text(csv_text: str, object_type: ObjectType) -> list[Record]:
+    rows = _read_rows_from_text(csv_text)
+    return _load_records_from_rows(rows, object_type)
+
+
+def load_records_from_bytes(csv_bytes: bytes, object_type: ObjectType) -> list[Record]:
+    try:
+        csv_text = csv_bytes.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise ValueError("CSV file must be UTF-8 encoded.") from exc
+
+    return load_records_from_text(csv_text, object_type)
+
+
+def _load_records_from_rows(rows: list[dict[str, str]], object_type: ObjectType) -> list[Record]:
     if object_type == "contacts":
         return [_build_contact(row) for row in rows]
     return [_build_company(row) for row in rows]
@@ -91,4 +115,3 @@ def _build_company(row: dict[str, str]) -> CompanyRecord:
         owner=_pick_value(row, COMPANY_ALIASES["owner"]),
         raw=row,
     )
-

@@ -1,0 +1,5 @@
+Record ID,Company name,Company domain name,Website URL,Phone Number,City,State/Region,Country/Region,Company owner
+201,"Acme, Inc.",acme.com,https://acme.com,312-555-0109,Chicago,Illinois,United States,Owner 1
+202,Acme Incorporated,,https://acme.com,3125550109,Chicago,Illinois,United States,Owner 2
+203,Northwind,northwind.io,https://northwind.io,312-555-0199,Austin,Texas,United States,Owner 3
+204,Northwind LLC,,https://northwind.io,3125550199,Austin,Texas,United States,Owner 2

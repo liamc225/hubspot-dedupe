@@ -8,13 +8,23 @@ version = "0.1.0"
 description = "A deterministic deduplication engine for HubSpot contact and company exports."
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "fastapi>=0.115,<1",
+    "python-multipart>=0.0.20,<1",
+    "uvicorn>=0.35,<1",
+]
 keywords = ["hubspot", "dedupe", "revops", "crm", "data-quality"]
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx>=0.28,<1",
+    "pytest>=8,<9",
 ]
 
 [project.scripts]
@@ -28,3 +38,6 @@ Issues = "https://github.com/liamc225/hubspot-dedupe/issues"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+
+[tool.setuptools.package-data]
+"hubspot_dedupe.web" = ["samples/*.csv", "static/*.css", "static/*.html", "static/*.js"]

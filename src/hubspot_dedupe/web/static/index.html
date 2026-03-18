@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HubSpot Dedupe UI</title>
+    <meta
+      name="description"
+      content="Self-hosted UI for uploading HubSpot contact and company exports, reviewing duplicate clusters, and validating merge recommendations."
+    />
+    <link rel="stylesheet" href="/assets/app.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Self-hosted workspace</p>
+          <h1>HubSpot Dedupe UI</h1>
+        </div>
+        <div class="topbar-meta">
+          <span class="status-dot"></span>
+          <span>Runs locally against your CSV export</span>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="panel controls-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Input</p>
+              <h2>Analyze an export</h2>
+            </div>
+            <p class="muted">Upload a HubSpot CSV and inspect duplicate clusters before you merge anything.</p>
+          </div>
+
+          <form id="analyze-form" class="stack">
+            <label class="field">
+              <span>Object type</span>
+              <div class="segmented-control">
+                <input id="contacts" type="radio" name="object_type" value="contacts" checked />
+                <label for="contacts">Contacts</label>
+                <input id="companies" type="radio" name="object_type" value="companies" />
+                <label for="companies">Companies</label>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>Minimum duplicate score</span>
+              <div class="range-field">
+                <input id="min-score" type="range" name="min_score" min="0" max="100" value="70" />
+                <output id="min-score-output" for="min-score">70</output>
+              </div>
+            </label>
+
+            <label class="field upload-field">
+              <span>CSV file</span>
+              <input id="csv-file" type="file" name="csv_file" accept=".csv,text/csv" required />
+              <small>Files are processed in memory. Nothing is written back to HubSpot.</small>
+            </label>
+
+            <div class="button-row">
+              <button class="button button-primary" type="submit">Analyze upload</button>
+              <button id="reset-form" class="button button-secondary" type="button">Reset</button>
+            </div>
+          </form>
+
+          <div class="sample-panel">
+            <div>
+              <p class="eyebrow">Quick start</p>
+              <h3>Load included samples</h3>
+            </div>
+            <div class="button-row">
+              <button class="button button-secondary sample-button" type="button" data-sample="contacts">
+                Sample contacts
+              </button>
+              <button class="button button-secondary sample-button" type="button" data-sample="companies">
+                Sample companies
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <section class="results-column">
+          <div class="panel summary-panel">
+            <div class="summary-header">
+              <div>
+                <p class="eyebrow">Results</p>
+                <h2 id="summary-title">No analysis yet</h2>
+              </div>
+              <div id="loading-badge" class="loading-badge is-hidden">Working</div>
+            </div>
+            <p id="summary-text" class="muted">
+              Upload a CSV or load one of the included samples to review duplicate clusters here.
+            </p>
+            <div id="metrics" class="metric-grid"></div>
+          </div>
+
+          <div id="error-banner" class="error-banner is-hidden"></div>
+          <div id="empty-state" class="panel empty-state">
+            <h3>Ready for your first pass</h3>
+            <p>
+              The UI will show cluster confidence, recommended merge actions, and the reasons each
+              duplicate was matched.
+            </p>
+          </div>
+          <div id="results-list" class="results-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

@@ -2,13 +2,24 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 
 from hubspot_dedupe.engine import cluster_to_dict, find_duplicate_clusters
 from hubspot_dedupe.io import load_records
 from hubspot_dedupe.models import DuplicateCluster, ObjectType
+from hubspot_dedupe.web import run_server
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    args = argv if argv is not None else sys.argv[1:]
+    if args and args[0] == "serve":
+        _serve(args[1:])
+        return
+
+    _run_legacy(args)
+
+
+def _run_legacy(args: list[str]) -> None:
     parser = argparse.ArgumentParser(description="Detect duplicate HubSpot records from a CSV export.")
     parser.add_argument("object_type", choices=["contacts", "companies"])
     parser.add_argument("path", help="Path to a HubSpot CSV export.")
@@ -19,17 +30,26 @@ def main() -> None:
         default="markdown",
         help="Output format.",
     )
-    args = parser.parse_args()
+    parsed_args = parser.parse_args(args)
 
-    object_type = args.object_type
-    records = load_records(args.path, object_type)
-    clusters = find_duplicate_clusters(object_type, records, min_score=args.min_score)
+    object_type = parsed_args.object_type
+    records = load_records(parsed_args.path, object_type)
+    clusters = find_duplicate_clusters(object_type, records, min_score=parsed_args.min_score)
 
-    if args.format == "json":
+    if parsed_args.format == "json":
         print(json.dumps([cluster_to_dict(cluster) for cluster in clusters], indent=2))
         return
 
     print(render_markdown(object_type, clusters))
+
+
+def _serve(args: list[str]) -> None:
+    parser = argparse.ArgumentParser(description="Run the self-hosted HubSpot Dedupe web UI.")
+    parser.add_argument("--host", default="127.0.0.1", help="Host interface to bind.")
+    parser.add_argument("--port", type=int, default=8000, help="Port to bind.")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload for local development.")
+    parsed_args = parser.parse_args(args)
+    run_server(host=parsed_args.host, port=parsed_args.port, reload=parsed_args.reload)
 
 
 def render_markdown(object_type: ObjectType, clusters: list[DuplicateCluster]) -> str:
