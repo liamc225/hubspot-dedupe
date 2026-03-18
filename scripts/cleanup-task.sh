@@ -18,11 +18,10 @@ else
   branch_name="$target"
 fi
 
-git worktree remove "$worktree_path"
+git worktree remove --force "$worktree_path"
 
 if git branch --merged main | grep -q " $branch_name$"; then
   git branch -d "$branch_name"
 fi
 
 git worktree list
-
