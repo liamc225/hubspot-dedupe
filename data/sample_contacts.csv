@@ -1,0 +1,7 @@
+Record ID,Email,First Name,Last Name,Phone Number,Company Name,Website URL,Lifecycle Stage,Contact owner
+101,alice@example.com,Alice,Smith,(312) 555-0101,Example Inc,https://example.com,lead,AE 1
+102,alice@example.com,Alicia,Smith,3125550101,Example,https://example.com,marketingqualifiedlead,AE 2
+103,bob@example.com,Bob,Stone,3125550199,Northwind,https://northwind.io,lead,AE 3
+104,carol@northwind.io,Carol,Jones,3125550134,Northwind LLC,https://northwind.io,salesqualifiedlead,AE 3
+105,carol@northwind.io,Carol,Jones,3125550134,Northwind,https://northwind.io,salesqualifiedlead,AE 2
+
