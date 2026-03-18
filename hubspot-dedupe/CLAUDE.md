@@ -15,7 +15,7 @@ This project is a deterministic deduplication system for HubSpot exports. It hel
 | Linting & Formatting | Keep code `ruff`-compatible; no formatter dependency wired yet |
 | Type Checking | Standard-library typing with compile checks |
 | Persistence | None for MVP; CSV in, JSON/Markdown out |
-| Monorepo | Single package |
+| Monorepo | Lives under `hubspot-dedupe/` in the `opensource-ideas` workspace |
 | Pre-commit Hooks | Not yet configured |
 
 ## Golden Reference
@@ -117,4 +117,3 @@ scripts/
 data/
 worktrees/
 ```
-
