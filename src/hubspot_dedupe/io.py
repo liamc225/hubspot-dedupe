@@ -36,30 +36,40 @@ COMPANY_ALIASES = {
 
 def _pick_value(row: dict[str, str], aliases: list[str]) -> str | None:
     for alias in aliases:
-        if alias in row and row[alias].strip():
-            return row[alias].strip()
+        value = row.get(alias)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
     return None
 
 
-def _read_rows(path: Path) -> list[dict[str, str]]:
+def _read_rows(path: Path) -> tuple[list[dict[str, str]], list[str]]:
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
-        return [dict(row) for row in reader]
+        return _rows_from_reader(reader)
 
 
-def _read_rows_from_text(csv_text: str) -> list[dict[str, str]]:
+def _read_rows_from_text(csv_text: str) -> tuple[list[dict[str, str]], list[str]]:
     reader = csv.DictReader(StringIO(csv_text))
-    return [dict(row) for row in reader]
+    return _rows_from_reader(reader)
+
+
+def _rows_from_reader(reader: csv.DictReader[str]) -> tuple[list[dict[str, str]], list[str]]:
+    fieldnames = [field for field in reader.fieldnames or [] if isinstance(field, str)]
+    if not fieldnames:
+        raise ValueError("CSV file is missing headers.")
+
+    rows = [dict(row) for row in reader if any(isinstance(value, str) and value.strip() for value in row.values())]
+    return rows, fieldnames
 
 
 def load_records(path: str, object_type: ObjectType) -> list[Record]:
-    rows = _read_rows(Path(path))
-    return _load_records_from_rows(rows, object_type)
+    rows, fieldnames = _read_rows(Path(path))
+    return _load_records_from_rows(rows, object_type, fieldnames)
 
 
 def load_records_from_text(csv_text: str, object_type: ObjectType) -> list[Record]:
-    rows = _read_rows_from_text(csv_text)
-    return _load_records_from_rows(rows, object_type)
+    rows, fieldnames = _read_rows_from_text(csv_text)
+    return _load_records_from_rows(rows, object_type, fieldnames)
 
 
 def load_records_from_bytes(csv_bytes: bytes, object_type: ObjectType) -> list[Record]:
@@ -71,7 +81,19 @@ def load_records_from_bytes(csv_bytes: bytes, object_type: ObjectType) -> list[R
     return load_records_from_text(csv_text, object_type)
 
 
-def _load_records_from_rows(rows: list[dict[str, str]], object_type: ObjectType) -> list[Record]:
+def _load_records_from_rows(
+    rows: list[dict[str, str]],
+    object_type: ObjectType,
+    fieldnames: list[str],
+) -> list[Record]:
+    supported_fields = CONTACT_ALIASES if object_type == "contacts" else COMPANY_ALIASES
+    has_known_headers = any(alias in fieldnames for aliases in supported_fields.values() for alias in aliases)
+    if not has_known_headers:
+        raise ValueError(f"CSV headers do not look like a HubSpot {object_type} export.")
+
+    if not rows:
+        raise ValueError("CSV file does not contain any records.")
+
     if object_type == "contacts":
         return [_build_contact(row) for row in rows]
     return [_build_company(row) for row in rows]

@@ -8,6 +8,7 @@ from hubspot_dedupe.models import CompanyRecord, ContactRecord, DuplicateCluster
 from hubspot_dedupe.normalization import (
     domain_from_email,
     domain_from_website,
+    is_public_email_domain,
     normalize_company_name,
     normalize_domain,
     normalize_email,
@@ -160,7 +161,7 @@ def _contact_block_keys(record: ContactRecord) -> list[str]:
         keys.append(f"email:{email}")
     if phone:
         keys.append(f"phone:{phone}")
-    if name and domain:
+    if name and domain and not is_public_email_domain(domain):
         keys.append(f"name-domain:{name}:{domain}")
     if name and company:
         keys.append(f"name-company:{name}:{company}")

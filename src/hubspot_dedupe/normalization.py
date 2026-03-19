@@ -16,6 +16,21 @@ COMPANY_SUFFIXES = {
     "limited",
 }
 
+PUBLIC_EMAIL_DOMAINS = {
+    "aol.com",
+    "gmail.com",
+    "googlemail.com",
+    "hotmail.com",
+    "icloud.com",
+    "me.com",
+    "msn.com",
+    "outlook.com",
+    "proton.me",
+    "protonmail.com",
+    "yahoo.com",
+    "ymail.com",
+}
+
 
 def normalize_text(value: str | None) -> str | None:
     if value is None:
@@ -60,6 +75,13 @@ def domain_from_email(email: str | None) -> str | None:
     return normalized.split("@", 1)[1]
 
 
+def is_public_email_domain(domain: str | None) -> bool:
+    normalized = normalize_domain(domain)
+    if normalized is None:
+        return False
+    return normalized in PUBLIC_EMAIL_DOMAINS
+
+
 def domain_from_website(website: str | None) -> str | None:
     normalized = normalize_text(website)
     if normalized is None:
@@ -87,4 +109,3 @@ def normalize_company_name(value: str | None) -> str | None:
     if not filtered:
         return normalized
     return " ".join(filtered)
-

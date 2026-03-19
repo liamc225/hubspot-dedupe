@@ -44,6 +44,19 @@ def test_analyze_upload_accepts_csv_file() -> None:
     assert payload["clusters"][0]["actions"][0]["duplicate_id"] == "102"
 
 
+def test_analyze_upload_rejects_header_only_csv() -> None:
+    client = TestClient(create_app())
+
+    response = client.post(
+        "/api/analyze",
+        data={"object_type": "contacts", "min_score": "70"},
+        files={"csv_file": ("contacts.csv", b"Record ID,Email,First Name,Last Name\n", "text/csv")},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "CSV file does not contain any records."
+
+
 def test_cli_can_dispatch_to_web_server(monkeypatch) -> None:
     called: dict[str, object] = {}
 

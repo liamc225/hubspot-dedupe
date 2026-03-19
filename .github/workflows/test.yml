@@ -3,20 +3,11 @@ name: Tests
 on:
   push:
     branches: ["main"]
-    paths:
-      - ".github/workflows/test.yml"
-      - "hubspot-dedupe/**"
   pull_request:
-    paths:
-      - ".github/workflows/test.yml"
-      - "hubspot-dedupe/**"
 
 jobs:
   pytest:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: hubspot-dedupe
 
     steps:
       - uses: actions/checkout@v4

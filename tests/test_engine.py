@@ -2,7 +2,9 @@ import json
 
 from hubspot_dedupe.cli import render_markdown
 from hubspot_dedupe.engine import cluster_to_dict, find_duplicate_clusters
-from hubspot_dedupe.io import load_records
+import pytest
+
+from hubspot_dedupe.io import load_records, load_records_from_text
 from hubspot_dedupe.models import CompanyRecord, ContactRecord
 
 
@@ -87,3 +89,21 @@ def test_cluster_to_dict_is_json_serializable() -> None:
 
     assert json.loads(json.dumps(payload))["cluster_id"] == cluster.cluster_id
 
+
+def test_public_email_domains_do_not_create_name_domain_matches() -> None:
+    records = [
+        ContactRecord(record_id="101", email="alex@gmail.com", first_name="Alex", last_name="Morgan"),
+        ContactRecord(record_id="102", email="alex@gmail.com".replace("alex", "alex.work"), first_name="Alex", last_name="Morgan"),
+    ]
+
+    assert find_duplicate_clusters("contacts", records, min_score=1) == []
+
+
+def test_loader_rejects_header_only_csv() -> None:
+    with pytest.raises(ValueError, match="does not contain any records"):
+        load_records_from_text("Record ID,Email,First Name,Last Name\n", "contacts")
+
+
+def test_loader_rejects_non_hubspot_headers() -> None:
+    with pytest.raises(ValueError, match="do not look like a HubSpot contacts export"):
+        load_records_from_text("id,mail,given_name\n1,test@example.com,Alice\n", "contacts")

@@ -6,6 +6,7 @@ from hubspot_dedupe.models import CompanyRecord, ContactRecord, PairMatch
 from hubspot_dedupe.normalization import (
     domain_from_email,
     domain_from_website,
+    is_public_email_domain,
     normalize_company_name,
     normalize_domain,
     normalize_email,
@@ -56,7 +57,7 @@ def score_contact_pair(left: ContactRecord, right: ContactRecord) -> PairMatch:
 
     left_domain = domain_from_email(left.email) or domain_from_website(left.website)
     right_domain = domain_from_email(right.email) or domain_from_website(right.website)
-    if left_domain and left_domain == right_domain:
+    if left_domain and left_domain == right_domain and not is_public_email_domain(left_domain):
         score += 15
         reasons.append("same company domain")
 
@@ -103,4 +104,3 @@ def score_company_pair(left: CompanyRecord, right: CompanyRecord) -> PairMatch:
         score=min(score, 100),
         reasons=reasons,
     )
-
